@@ -1,18 +1,15 @@
 FROM archlinux:base
 
-# Locale and environment setup
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-
 # Prevent pacman from asking questions
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Preconfigure keyring and update base packages
+# System packages
 RUN pacman -Sy --noconfirm archlinux-keyring \
  && pacman-key --init \
  && pacman-key --populate archlinux \
- && pacman -Syu --noconfirm base-devel git sudo wget sane
+ && pacman -Syu --noconfirm base-devel git sudo wget sane glibc
 
+ 
 # Add a non-root user for yay
 RUN useradd -m aur \
  && echo "aur ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
