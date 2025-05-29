@@ -1,21 +1,54 @@
 # ScanService
 
-**TODO: Add description**
+## Description
+This service is a lightweight, containerized API designed to interface with scanner hardware. Upon receiving a request, it launches a dedicated Docker container in parallel, passing in the necessary scan configuration parameters (such as scan area, resolution, and other options). The scan is then executed using the SANE (Scanner Access Now Easy) backend within the container.
 
-## Installation
+## Starting the server (local development)
+Run `iex -S mix`
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `scan_service` to your list of dependencies in `mix.exs`:
+## Starting the server (prod)
+First build the docker image with `docker build -t scan_service .`
+Then run the container with:
+  ```bash
+  docker run --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /dev:/dev \
+  -v /run/udev:/run/udev \
+  --privileged \
+  -p 4001:4001 \
+  scan_service
+  ```
 
-```elixir
-def deps do
-  [
-    {:scan_service, "~> 0.1.0"}
-  ]
-end
+## API Parameters
+
+The API accepts the following query parameters when initiating a scan. If a parameter is not provided, a default value will be used.
+
+| Parameter   | Type    | Default   | Description                                                   |
+|-------------|---------|-----------|---------------------------------------------------------------|
+| `device` | String | none, must be specified | device name specific to udev rules on the host machine e.g. `scanner_v600_1`, `scanner_v600_2`, `scanner_v550_1` |
+| `output` | String | none, must be specified | output save directoy on the host machine e.g. `/home/user/scans` |
+| `resolution` (`res`) | Integer | `300`     | Scan resolution in DPI.                                      |
+| `mode`      | String  | `"Color"` | Scan mode. Common values: `Color`, `Gray`, `Lineart`.        |
+| `t`         | Integer   | `0`       | Top margin (in millimeters).                                 |
+| `l`         | Integer   | `0`       | Left margin (in millimeters).                                |
+| `x`         | Integer   | `210`     | Width of scan area (in millimeters).                         |
+| `y`         | Integer   | `297`     | Height of scan area (in millimeters).                        |
+
+These parameters define the scan area and quality settings for each scan request. They are passed as JSON in the body of a POST request.
+
+---
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:4001/api/scan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "resolution": 600,
+    "mode": "Gray",
+    "t": 10,
+    "l": 10,
+    "x": 100,
+    "y": 150
+  }'
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/scan_service>.
-
