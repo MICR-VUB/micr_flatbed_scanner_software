@@ -17,7 +17,7 @@ config :lssf_hts, LssfHts.Repo,
 # you can enable the server option below.
 config :lssf_hts, LssfHtsWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "jowJEXzDBiFyzPzLPnqr0U+n/DK/kOJoa3Vk6CuBEdRs/ht2AToIMN/CQCRTJUzu",
+  secret_key_base: "tvkZPqd3vgtQanzDwUo3CP46zEUlJMZGO0b4cO50Zk8/68j56yYaVWWzZKT8CWUR",
   server: false
 
 # In test we don't send emails
