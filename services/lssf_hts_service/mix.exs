@@ -59,7 +59,10 @@ defmodule LssfHts.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:oban, "~> 2.19"}
+      {:oban, "~> 2.19"},
+      {:httpoison, "~> 2.2"},
+      {:tz, "~> 0.28.1"},
+      {:timex, "~> 3.7"}
     ]
   end
 

@@ -4,6 +4,8 @@ defmodule LssfHtsWeb.JobLive.New do
   alias LssfHts.Scheduler.{Job, ScanEvent}
   alias LssfHts.Repo
 
+  use Timex
+
   @impl true
 def render(assigns) do
   ~H"""
@@ -76,8 +78,36 @@ end
     {:noreply, assign(socket, form: to_form(changeset))}
   end
 
+  defp convert_local_to_utc!(%{"schedule" => schedule, "run_until" => run_until} = params, user_tz) do
+
+    format = "{YYYY}-{0M}-{0D}T{h24}:{m}"
+
+    [schedule_utc, until_utc] =
+      [schedule, run_until]
+      |> Enum.map(fn time_str ->
+        time_str
+        |> Timex.parse!(format)
+        |> Timex.to_datetime(user_tz)
+        |> Timex.Timezone.convert("UTC")
+      end)
+
+    params
+    |> Map.put("schedule", schedule_utc)
+    |> Map.put("run_until", until_utc)
+  end
+
+
 
   def handle_event("save", %{"job" => job_params}, socket) do
+    user_tz = "Europe/Brussels"
+
+    job_params =
+      try do
+        convert_local_to_utc!(job_params, user_tz)
+      rescue
+        _ -> job_params
+      end
+
     case Repo.insert(Job.changeset(%Job{}, job_params)) do
       {:ok, _job} ->
         {:noreply,
