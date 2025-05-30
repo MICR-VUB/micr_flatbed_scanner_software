@@ -14,6 +14,9 @@ defmodule LssfHtsWeb.JobLive.Index do
 
     case Scheduler.toggle_job_enabled(job, !job.enabled) do
       {:ok, updated_job} ->
+        if !job.enabled do
+          Scheduler.start_job(job)
+        end
         {:noreply, stream_insert(socket, :jobs, updated_job)}
 
       {:error, _changeset} ->

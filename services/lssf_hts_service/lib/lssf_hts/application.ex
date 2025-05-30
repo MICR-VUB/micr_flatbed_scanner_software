@@ -18,7 +18,7 @@ defmodule LssfHts.Application do
       # {LssfHts.Worker, arg},
       # Start to serve requests, typically the last entry
       LssfHtsWeb.Endpoint,
-      {Oban, Application.fetch_env!(:LssfHts, Oban)}
+      {Oban, Application.fetch_env!(:lssf_hts, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

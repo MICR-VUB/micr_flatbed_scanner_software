@@ -55,15 +55,13 @@ config :tailwind,
 
 # Configure oban
 config :lssf_hts, Oban,
+  engine: Oban.Engines.Basic,
   repo: LssfHts.Repo,
-  queues: [default: 10, events: 20],
+  queues: [default: 4],
   plugins: [
     Oban.Plugins.Pruner,
-    {Oban.Plugins.Cron,
-      crontab: [
-        {"* * * * *", MyApp.JobExecutor}
-      ]}
-    ]
+    Oban.Plugins.Cron
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -72,6 +70,10 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# Add timezone support
+config :elixir, :time_zone_database, Tz.TimeZoneDatabase
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

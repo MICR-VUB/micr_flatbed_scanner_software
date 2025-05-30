@@ -203,4 +203,13 @@ defmodule LssfHts.Scheduler do
   def change_scan_event(%ScanEvent{} = scan_event, attrs \\ %{}) do
     ScanEvent.changeset(scan_event, attrs)
   end
+
+  alias LssfHts.Scheduler.ScanWorker
+  def start_job(%Job{} = job) do
+    IO.inspect(job, label: "job info")
+    %{job_id: job.id}
+    |> ScanWorker.new(schedule_in: _seconds = 5)
+    |> Oban.insert()
+  end
+
 end

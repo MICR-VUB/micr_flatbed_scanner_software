@@ -23,6 +23,9 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import ClockHook from "./clock_hook"; // Assuming you save the hook in assets/js/clock_hook.js
 
+document.cookie = `tz=${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+
+
 let Hooks = {};
 Hooks.ClockHook = ClockHook;
 
