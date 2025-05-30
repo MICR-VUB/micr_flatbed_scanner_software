@@ -102,6 +102,12 @@ defmodule LssfHts.Scheduler do
     Job.changeset(job, attrs)
   end
 
+  def toggle_job_enabled(%Job{} = job, enabled) do
+    job
+    |> Job.toggle_enabled_changeset(enabled)
+    |> Repo.update()
+  end
+
   alias LssfHts.Scheduler.ScanEvent
 
   @doc """

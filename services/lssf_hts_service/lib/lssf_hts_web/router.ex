@@ -64,8 +64,8 @@ defmodule LssfHtsWeb.Router do
   scope "/", LssfHtsWeb do
     pipe_through [:browser, :require_authenticated_user]
     live "/jobs", JobLive.Index, :index
-    live "/jobs/new", JobLive.Index, :new
-    live "/jobs/:id/edit", JobLive.Index, :edit
+    live "/jobs/new", JobLive.New, :new
+    live "/jobs/:id/edit", JobLive.Edit, :edit
 
     # live "/schedule", ScheduleLive, :index
     # live "/history", HistoryLive, :index

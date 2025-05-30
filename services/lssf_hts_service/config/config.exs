@@ -53,6 +53,18 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+# Configure oban
+config :lssf_hts, Oban,
+  repo: LssfHts.Repo,
+  queues: [default: 10, events: 20],
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+      crontab: [
+        {"* * * * *", MyApp.JobExecutor}
+      ]}
+    ]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
