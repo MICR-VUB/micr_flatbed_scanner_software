@@ -1,14 +1,13 @@
 defmodule LssfHtsWeb.JobLive.Edit do
   use LssfHtsWeb, :live_view
-  use Timex
+  alias LssfHtsWeb.Utils.TimeUtils
   alias LssfHts.Scheduler.{Job, ScanEvent}
   alias LssfHts.Repo
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     job = Repo.get!(Job, id) |> Repo.preload(:scan_events)
-    form_params = convert_utc_to_local_form(job, "Europe/Brussels")
-    |>IO.inspect()
+    form_params = TimeUtils.convert_utc_to_local_form(job, "Europe/Brussels")
     changeset = Job.changeset(job, form_params)
     {:ok, assign(socket, job: job, form: to_form(changeset))}
   end
@@ -86,44 +85,11 @@ defmodule LssfHtsWeb.JobLive.Edit do
     {:noreply, assign(socket, form: to_form(changeset))}
   end
 
-  defp convert_local_to_utc!(%{"schedule" => schedule, "run_until" => run_until} = params, user_tz) do
-
-    format = "{YYYY}-{0M}-{0D}T{h24}:{m}"
-
-    [schedule_utc, until_utc] =
-      [schedule, run_until]
-      |> Enum.map(fn time_str ->
-        time_str
-        |> Timex.parse!(format)
-        |> Timex.to_datetime(user_tz)
-        |> Timex.Timezone.convert("UTC")
-      end)
-
-    params
-    |> Map.put("schedule", schedule_utc)
-    |> Map.put("run_until", until_utc)
-  end
-
-  defp convert_utc_to_local_form(%Job{schedule: schedule, run_until: run_until} = params, user_tz) do
-    [schedule_local, until_local] =
-      [schedule, run_until]
-      |> Enum.map(fn dt ->
-        dt
-        |> Timex.Timezone.convert(user_tz)
-      end)
-
-    %{
-      "schedule" => schedule_local,
-      "run_until" => until_local
-    }
-  end
-
-
   def handle_event("save", %{"job" => job_params}, socket) do
 
     user_tz = "Europe/Brussels"
 
-    job_params = convert_local_to_utc!(job_params, user_tz)
+    job_params = TimeUtils.convert_local_to_utc!(job_params, user_tz)
 
     case Repo.update(Job.changeset(socket.assigns.job, job_params)) do
       {:ok, _job} ->

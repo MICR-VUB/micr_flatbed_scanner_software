@@ -2,6 +2,7 @@ defmodule LssfHtsWeb.JobLive.Index do
   use LssfHtsWeb, :live_view
 
   alias LssfHts.Scheduler
+  alias LssfHtsWeb.Utils.TimeUtils
 
   @impl true
   def mount(_params, _session, socket) do
@@ -39,25 +40,34 @@ defmodule LssfHtsWeb.JobLive.Index do
       <.link patch={~p"/jobs/new"} class="btn btn-primary">Create Job</.link>
     </.button>
     <.table id="jobs" rows={@streams.jobs}>
-    <:col :let={{_id, job}} label="Active">
-        <.input
-          type="checkbox"
-          name="enabled_toggle"
-          checked={job.enabled}
-          phx-click="toggle"
-          phx-value-id={job.id}
-        />
-      </:col>
-      <:col :let={{_id, job}} label="Name">
-        <%= job.name %>
-      </:col>
-      <:col :let={{_id, job}} label="Actions">
-        <.link patch={~p"/jobs/#{job.id}/edit"} class="btn btn-sm btn-outline">Edit</.link>
-        <.button phx-click="delete" phx-value-id={job.id} data-confirm="Are you sure?" class=" bg-red-300 ml-2">
-          <.icon name="hero-trash-solid" class="w-6 h-6 bg-black" />
-        </.button>
-      </:col>
-    </.table>
+      <:col :let={{_id, job}} label="Active">
+          <.input
+            type="checkbox"
+            name="enabled_toggle"
+            checked={job.enabled}
+            phx-click="toggle"
+            phx-value-id={job.id}
+          />
+        </:col>
+        <:col :let={{_id, job}} label="Name">
+          <%= job.name %>
+        </:col>
+        <:col :let={{_id, job}} label="Starts">
+          <%= Timex.format!(TimeUtils.convert_utc_to_local_form(job.schedule), "{0D}/{0M}/{YYYY} {h24}:{m}") %>
+        </:col>
+        <:col :let={{_id, job}} label="Finishes">
+          <%= Timex.format!(TimeUtils.convert_utc_to_local_form(job.run_until), "{0D}/{0M}/{YYYY} {h24}:{m}") %>
+        </:col>
+        <:col :let={{_id, job}} label="Runs every (minutes)">
+          <%= job.run_interval_minutes %>
+        </:col>
+        <:col :let={{_id, job}} label="Actions">
+          <.link patch={~p"/jobs/#{job.id}/edit"} class="underline">Edit</.link>
+          <.warning_button phx-click="delete" phx-value-id={job.id} data-confirm="Are you sure?" class="ml-2">
+            <.icon name="hero-trash-solid" class="w-6 h-6" />
+          </.warning_button>
+        </:col>
+      </.table>
     """
   end
 end
