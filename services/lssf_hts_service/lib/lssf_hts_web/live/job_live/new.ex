@@ -1,9 +1,7 @@
 defmodule LssfHtsWeb.JobLive.New do
   use LssfHtsWeb, :live_view
 
-  alias LssfHtsWeb.Utils.TimeUtils
   alias LssfHts.Scheduler.{Job, ScanEvent}
-  alias LssfHts.Repo
   alias LssfHts.Devices
 
   use Timex
@@ -16,6 +14,7 @@ defmodule LssfHtsWeb.JobLive.New do
     {:ok, assign(socket, job: job, devices: devices)}
   end
 
+  @impl true
   def handle_info({:job_saved, _job}, socket) do
     {:noreply,
     socket
@@ -23,6 +22,7 @@ defmodule LssfHtsWeb.JobLive.New do
     |> push_navigate(to: ~p"/jobs")}
   end
 
+  @impl true
   def render(assigns) do
     ~H"""
     <.live_component

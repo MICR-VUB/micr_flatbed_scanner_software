@@ -1,7 +1,7 @@
 defmodule LssfHtsWeb.JobLive.Edit do
   use LssfHtsWeb, :live_view
   alias LssfHtsWeb.Utils.TimeUtils
-  alias LssfHts.Scheduler.{Job, ScanEvent}
+  alias LssfHts.Scheduler.Job
   alias LssfHts.Repo
   alias LssfHts.Devices
 
@@ -15,6 +15,7 @@ defmodule LssfHtsWeb.JobLive.Edit do
     {:ok, assign(socket, job: job, devices: devices)}
   end
 
+  @impl true
   def handle_info({:job_saved, _job}, socket) do
     {:noreply,
     socket
@@ -22,6 +23,7 @@ defmodule LssfHtsWeb.JobLive.Edit do
     |> push_navigate(to: ~p"/jobs")}
   end
 
+  @impl true
   def render(assigns) do
     ~H"""
     <.live_component

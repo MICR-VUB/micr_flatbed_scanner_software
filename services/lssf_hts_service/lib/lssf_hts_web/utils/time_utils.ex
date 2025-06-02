@@ -18,6 +18,10 @@ defmodule LssfHtsWeb.Utils.TimeUtils do
     |> Map.put("run_until", until_utc)
   end
 
+  def convert_utc_to_local_form(data, user_tz \\ "Europe/Brussels")
+  def convert_utc_to_local_form(utc_time, user_tz) when is_struct(utc_time, DateTime) do
+    Timex.Timezone.convert(utc_time, user_tz)
+  end
   def convert_utc_to_local_form(%{schedule: schedule, run_until: run_until}, user_tz) do
     [schedule_local, until_local] =
       [schedule, run_until]
@@ -28,7 +32,5 @@ defmodule LssfHtsWeb.Utils.TimeUtils do
       run_until: until_local
     }
   end
-  def convert_utc_to_local_form(utc_time, user_tz \\ "Europe/Brussels") do
-    Timex.Timezone.convert(utc_time, user_tz)
-  end
+
 end
