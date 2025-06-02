@@ -619,6 +619,22 @@ defmodule LssfHtsWeb.CoreComponents do
     """
   end
 
+  def nav_link(assigns) do
+    ~H"""
+    <a
+      href={@to}
+      class={[
+        "transition-colors font-medium",
+        @is_active && "text-brand border-b-2 border-brand",
+        !@is_active && "text-zinc-600 hover:text-zinc-900"
+      ]}
+    >
+      <%= render_slot(@inner_block) %>
+    </a>
+    """
+  end
+
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do

@@ -1,5 +1,7 @@
 defmodule LssfHtsWeb.ClockComponent do
-  use Phoenix.LiveComponent
+  use LssfHtsWeb, :live_component
+
+  attr :class, :string, default: nil
 
   def mount(socket) do
     socket =
@@ -15,7 +17,7 @@ defmodule LssfHtsWeb.ClockComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} phx-hook="ClockHook" class="font-mono text-xs text-zinc-600">
+    <div id={@id} phx-hook="ClockHook" class={["font-mono text-xs text-zinc-600", @class]}>
       <span>Current Time: </span>
       <p class="inline" id={"#{@id}-time"}></p>
     </div>
