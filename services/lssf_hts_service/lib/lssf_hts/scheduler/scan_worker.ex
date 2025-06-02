@@ -5,7 +5,7 @@ defmodule LssfHts.Scheduler.ScanWorker do
     worker: __MODULE__
 
   alias LssfHts.Repo
-  alias LssfHts.Scheduler.{Job, ScanEvent}
+  alias LssfHts.Scheduler.Job
 
   require Logger
 
@@ -14,7 +14,7 @@ defmodule LssfHts.Scheduler.ScanWorker do
     Logger.info("Oban ScanWorker started for job_id=#{job_id}")
 
     job = Repo.get!(Job, job_id)
-    |> Repo.preload(:scan_events)
+    |> Repo.preload(scan_events: :device)
 
     Logger.debug("Loaded job: #{inspect(job)}")
 
@@ -22,20 +22,38 @@ defmodule LssfHts.Scheduler.ScanWorker do
 
     if job.enabled and DateTime.compare(current_time, job.run_until) == :lt do
       Enum.each(job.scan_events, fn event ->
-        IO.inspect(event, label: "event struct")
-        result = execute_http_request(event)
-        Logger.info("ScanEvent #{event.id} result: #{inspect(result)}")
+        case execute_http_request(event) do
+          {:ok, result} ->
+            Logger.info("Job execution request successful with code #{result.status_code}")
+            schedule_next_run(job)
+
+          {:error, reason} ->
+            Logger.error("ScanEvent #{event.id} failed with: #{inspect(reason)}. Disabling job #{job.id}")
+            disable_job(job)
+        end
+
       end)
 
-      schedule_next_run(job)
+
+    else
+      Logger.error("Job end time: #{job.run_until} is before current time: #{current_time}. Job is expired")
+      disable_job(job)
     end
 
     :ok
   end
 
+  defp disable_job(job) do
+    job
+    |> Ecto.Changeset.change(enabled: false)
+    |> Repo.update()
+
+    {:error, "Job #{job.id} disabled due to failure or expiration"}
+  end
+
   defp execute_http_request(event) do
     payload = %{
-      device: event.device,
+      device: event.device.udev_name,
       output: event.output,
       resolution: event.resolution,
       mode: event.mode,
@@ -49,18 +67,30 @@ defmodule LssfHts.Scheduler.ScanWorker do
       {"Content-Type", "application/json"}
     ]
 
+    server_address = "localhost:4001/scan"
+
     case Jason.encode(payload) do
       {:ok, json} ->
-        HTTPoison.post(
-          System.get_env("SCANNER_SERVER_URL"),
+        Logger.info("Request to server: #{server_address} sent")
+        case HTTPoison.post(
+          server_address,
           json,
           headers,
           timeout: 60_000, # 1 min connect timeout
           recv_timeout: 1_000 * 60 * 16 # 16 minutes receive timeout
-          )
+        ) do
+          {:ok, %HTTPoison.Response{status_code: code, body: body}} when code in 200..299 ->
+            Logger.info("Scan request succeeded with status #{code}")
+            {:ok, body}
+          {:ok, %HTTPoison.Response{status_code: code, body: body}} ->
+            Logger.error("Scan request failed with status #{code}: #{inspect(body)}")
+            {:error, {:http_error, code, body}}
+          {:error, %HTTPoison.Error{reason: reason}} ->
+            Logger.error("Scan request errored: #{inspect(reason)}")
+            {:error, {:request_failed, reason}}
+        end
 
       {:error, reason} ->
-        Logger.error("Failed to encode payload for ScanEvent #{event.id}: #{inspect(reason)}")
         {:error, reason}
     end
   end
