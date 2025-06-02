@@ -24,8 +24,8 @@ defmodule LssfHtsWeb.Utils.TimeUtils do
       |> Enum.map(&Timex.Timezone.convert(&1, user_tz))
 
     %{
-      "schedule" => schedule_local,
-      "run_until" => until_local
+      schedule: schedule_local,
+      run_until: until_local
     }
   end
   def convert_utc_to_local_form(utc_time, user_tz \\ "Europe/Brussels") do
