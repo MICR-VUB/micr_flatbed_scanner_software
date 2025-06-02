@@ -6,7 +6,12 @@
         <span>HYPHERGRAPH</span>
       </a>
       <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        v{Application.spec(:phoenix, :vsn)}
+        v<%= 
+          version = case Application.spec(:lssf_hts, :vsn) do
+            nil -> "0.0.0"
+            vsn -> to_string(vsn)
+          end
+        %>
       </p>
       <.live_component module={LssfHtsWeb.ClockComponent} id="live-clock" />
     </div>
