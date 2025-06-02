@@ -3,6 +3,7 @@ defmodule LssfHtsWeb.ClockComponent do
 
   attr :class, :string, default: nil
 
+  @impl true
   def mount(socket) do
     socket =
       socket
@@ -10,6 +11,7 @@ defmodule LssfHtsWeb.ClockComponent do
     {:ok, socket}
   end
 
+  @impl true
   def update(assigns, socket) do
     {:ok, assign(socket, assigns)}
   end
