@@ -67,6 +67,13 @@ defmodule LssfHtsWeb.Router do
     live "/jobs/new", JobLive.New, :new
     live "/jobs/:id/edit", JobLive.Edit, :edit
 
+    live "/devices", DeviceLive.Index, :index
+    live "/devices/new", DeviceLive.Index, :new
+    live "/devices/:id/edit", DeviceLive.Index, :edit
+
+    live "/devices/:id", DeviceLive.Show, :show
+    live "/devices/:id/show/edit", DeviceLive.Show, :edit
+
     # live "/schedule", ScheduleLive, :index
     # live "/history", HistoryLive, :index
     live_session :require_authenticated_user,
