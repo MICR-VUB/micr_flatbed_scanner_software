@@ -8,6 +8,7 @@ defmodule LssfHts.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :admin, :boolean, default: false
 
     timestamps(type: :utc_datetime)
   end
@@ -157,5 +158,14 @@ defmodule LssfHts.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  @doc """
+  Changes the admin flag on a user.
+  """
+  def admin_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:admin])
+    |> validate_required([:admin])
   end
 end
