@@ -30,7 +30,12 @@ defmodule LssfHtsWeb.JobLive.FormComponent do
           <div class="mb-4 border rounded p-4">
             <.input field={scan_event_form[:step_name]} label="Step Name" />
             <.input type="select" field={scan_event_form[:device_id]} label="Device" options={@devices} />
-            <.input field={scan_event_form[:output]} label="Output Path" />
+            <.input
+              field={scan_event_form[:output]}
+              label="Output Path"
+              placeholder="/home/scanners/piet/scan.tiff"
+              help="Absolute file path on the machine where output files should be saved. For example: /home/scanners/piet/scan.tiff"
+            />
             <.input field={scan_event_form[:resolution]} label="Resolution (dpi)" type="number" />
             <.input field={scan_event_form[:mode]} label="Mode" />
             <.input field={scan_event_form[:t]} label="Top (mm)" type="number" />
@@ -91,20 +96,37 @@ defmodule LssfHtsWeb.JobLive.FormComponent do
   def handle_event("save", %{"job" => job_params}, socket) do
     user_tz = "Europe/Brussels"
     job_params = TimeUtils.convert_local_to_utc!(job_params, user_tz)
+    current_user = socket.assigns.current_user
 
-    result =
-      case socket.assigns.action do
-        :new -> Repo.insert(Job.changeset(%Job{}, job_params))
-        :edit -> Repo.update(Job.changeset(socket.assigns.job, job_params))
-      end
+    case socket.assigns.action do
+      :new ->
+        job_params = Map.put(job_params, "user_id", current_user.id)
+        case Repo.insert(Job.changeset(%Job{}, job_params)) do
+          {:ok, job} ->
+            send(self(), {:job_saved, job})
+            {:noreply, socket}
+          {:error, changeset} ->
+            {:noreply, assign(socket, form: to_form(changeset))}
+        end
 
-    case result do
-      {:ok, job} ->
-        send(self(), {:job_saved, job})
-        {:noreply, socket}
+      :edit ->
+        job = socket.assigns.job
 
-      {:error, changeset} ->
-        {:noreply, assign(socket, form: to_form(changeset))}
+        # Authorization: only allow if user is owner or admin
+        if job.user_id == current_user.id or current_user.admin do
+          case Repo.update(Job.changeset(job, job_params)) do
+            {:ok, job} ->
+              send(self(), {:job_saved, job})
+              {:noreply, socket}
+            {:error, changeset} ->
+              {:noreply, assign(socket, form: to_form(changeset))}
+          end
+        else
+          {:noreply,
+            socket
+            |> put_flash(:error, "You are not authorised to perform this action.")
+            |> redirect(to: "/")}
+        end
     end
   end
 end
