@@ -19,15 +19,17 @@
     <div class="sr-only">
       <.link navigate={~p"/devices/#{device}"}>Show</.link>
     </div>
-    <.link patch={~p"/devices/#{device}/edit"}>Edit</.link>
+    <.link class="underline" patch={~p"/devices/#{device}/edit"}>Edit</.link>
   </:action>
   <:action :let={{id, device}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: device.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
+    <.warning_button 
+      phx-click={JS.push("delete", value: %{id: device.id}) |> hide("##{id}")} 
+      phx-value-id={device.id} 
+      data-confirm="Are you sure?" 
+      class="ml-2">
+      <.icon name="hero-trash-solid" class="w-6 h-6" />
+    </.warning_button>
+
   </:action>
 </.table>
 
