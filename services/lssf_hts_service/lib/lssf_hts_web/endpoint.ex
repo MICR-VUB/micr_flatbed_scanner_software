@@ -7,7 +7,7 @@ defmodule LssfHtsWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_lssf_hts_key",
-    signing_salt: "DKGAs4iT",
+    signing_salt: "97Qto/4b",
     same_site: "Lax"
   ]
 

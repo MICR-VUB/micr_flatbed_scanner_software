@@ -24,7 +24,10 @@ config :lssf_hts, LssfHtsWeb.Endpoint,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "MKHptO+1yv4FxT1uKqRlwlk6kwZBphHliszzkcJchXu7nulraOAQYMs+os41/wIG",
-  watchers: []
+  watchers: [
+    esbuild: {Esbuild, :install_and_run, [:lssf_hts, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:lssf_hts, ~w(--watch)]}
+  ]
 
 # ## SSL Support
 #

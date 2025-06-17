@@ -4,7 +4,9 @@
 This service is a lightweight, containerized API designed to interface with scanner hardware. Upon receiving a request, it launches a dedicated Docker container in parallel, passing in the necessary scan configuration parameters (such as scan area, resolution, and other options). The scan is then executed using the SANE (Scanner Access Now Easy) backend within the container.
 
 ## Starting the server (local development)
-Run `iex -S mix`
+Run:
+1. `mix deps.get`
+2. `iex -S mix`
 
 ## Starting the server (prod)
 First build the docker image with `docker build -t scan_service .`
@@ -41,9 +43,11 @@ These parameters define the scan area and quality settings for each scan request
 ### Example Request
 
 ```bash
-curl -X POST http://localhost:4001/api/scan \
+curl -X POST http://10.240.47.255:4001/scan \
   -H "Content-Type: application/json" \
   -d '{
+    "device": "scanner_v600_1",
+    "output": "/home/scanners/mac_test.tiff"
     "resolution": 600,
     "mode": "Gray",
     "t": 10,

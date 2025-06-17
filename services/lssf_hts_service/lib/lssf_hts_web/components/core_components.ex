@@ -242,6 +242,28 @@ defmodule LssfHtsWeb.CoreComponents do
     """
   end
 
+  attr :type, :string, default: nil
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(disabled form name value)
+
+  slot :inner_block, required: true
+
+  def warning_button(assigns) do
+    ~H"""
+    <button
+      type={@type}
+      class={[
+        "rounded-lg bg-red-300 hover:bg-red-400 py-2 px-3",
+        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        @class
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
+
   @doc """
   Renders an input with label and error messages.
 
@@ -596,6 +618,22 @@ defmodule LssfHtsWeb.CoreComponents do
     <span class={[@name, @class]} />
     """
   end
+
+  def nav_link(assigns) do
+    ~H"""
+    <a
+      href={@to}
+      class={[
+        "transition-colors font-medium",
+        @is_active && "text-brand border-b-2 border-brand",
+        !@is_active && "text-zinc-600 hover:text-zinc-900"
+      ]}
+    >
+      <%= render_slot(@inner_block) %>
+    </a>
+    """
+  end
+
 
   ## JS Commands
 
