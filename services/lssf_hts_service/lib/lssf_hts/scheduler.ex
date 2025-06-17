@@ -212,4 +212,16 @@ defmodule LssfHts.Scheduler do
     |> Oban.insert()
   end
 
+  def run_job_once(%Job{} = job) do
+    Enum.reduce_while(job.scan_events, :ok, fn event, _acc ->
+      case LssfHts.Scheduler.ScanWorker.execute_http_request(event) do
+        {:ok, _result} ->
+          {:cont, :ok}
+
+        {:error, reason} ->
+          {:halt, {:error, reason}}
+      end
+    end)
+  end
+
 end

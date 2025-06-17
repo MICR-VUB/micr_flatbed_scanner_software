@@ -33,12 +33,31 @@ defmodule LssfHtsWeb.JobLive.Index do
   end
 
   @impl true
+  def handle_event("run_now", %{"id" => id}, socket) do
+    job = LssfHts.Scheduler.get_job!(id)
+    |> LssfHts.Repo.preload(scan_events: :device)
+
+    case LssfHts.Scheduler.run_job_once(job) do
+      :ok ->
+        {:noreply, put_flash(socket, :info, "Job #{job.name} executed successfully.")}
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Job failed: #{inspect(reason)}")}
+    end
+  end
+
+
+  @impl true
   def render(assigns) do
     ~H"""
-    <.header class="mb-4">All Scheduled Jobs</.header>
-    <.button class="mb-4">
-      <.link patch={~p"/jobs/new"} class="btn btn-primary">Create Job</.link>
-    </.button>
+    <.header>All Scheduled Jobs
+      <:actions>
+        <.link patch={~p"/jobs/new"} class="btn btn-primary">
+          <.button class="mb-4">
+            Create Job
+          </.button>
+        </.link>
+      </:actions>
+    </.header>
     <.table id="jobs" rows={@streams.jobs}>
       <:col :let={{_id, job}} label="Active">
           <.input
@@ -61,12 +80,20 @@ defmodule LssfHtsWeb.JobLive.Index do
         <:col :let={{_id, job}} label="Runs every (minutes)">
           <%= job.run_interval_minutes %>
         </:col>
-        <:col :let={{_id, job}} label="Actions">
+        <:action :let={{_id, job}}>
           <.link patch={~p"/jobs/#{job.id}/edit"} class="underline">Edit</.link>
           <.warning_button phx-click="delete" phx-value-id={job.id} data-confirm="Are you sure?" class="ml-2">
             <.icon name="hero-trash-solid" class="w-6 h-6" />
           </.warning_button>
-        </:col>
+          <.button
+            class="ml-2"
+            phx-click="run_now"
+            data-confirm="Are you sure?"
+            phx-value-id={job.id}
+          >
+            Run Now
+          </.button>
+        </:action>
       </.table>
     """
   end
