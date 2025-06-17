@@ -64,10 +64,12 @@ defmodule LssfHtsWeb.Router do
 
   scope "/", LssfHtsWeb do
     pipe_through [:browser, :require_authenticated_user]
-    live "/jobs", JobLive.Index, :index
-    live "/jobs/new", JobLive.New, :new
-    live "/jobs/:id/edit", JobLive.Edit, :edit
 
+    live_session :default, on_mount: [{LssfHtsWeb.UserAuth, :mount_current_user}] do
+      live "/jobs", JobLive.Index, :index
+      live "/jobs/new", JobLive.New, :new
+      live "/jobs/:id/edit", JobLive.Edit, :edit
+    end
     live "/devices", DeviceLive.Index, :index
     live "/devices/new", DeviceLive.Index, :new
     live "/devices/:id/edit", DeviceLive.Index, :edit

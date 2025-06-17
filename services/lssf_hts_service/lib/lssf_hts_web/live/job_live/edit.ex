@@ -32,6 +32,7 @@ defmodule LssfHtsWeb.JobLive.Edit do
       job={@job}
       action={:edit}
       devices={@devices}
+      current_user={@current_user}
     />
     """
   end

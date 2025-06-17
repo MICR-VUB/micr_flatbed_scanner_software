@@ -31,6 +31,7 @@ defmodule LssfHtsWeb.JobLive.New do
       job={@job}
       action={:new}
       devices={@devices}
+      current_user={@current_user}
     />
     """
   end
