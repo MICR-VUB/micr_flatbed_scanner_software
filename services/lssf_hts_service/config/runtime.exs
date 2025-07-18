@@ -63,8 +63,18 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
     ],
+    check_origin: [
+      "//localhost",
+      "//localhost:4000",
+      "//127.0.0.1",
+      "//127.0.0.1:4000"
+    ],
     secret_key_base: secret_key_base
 
+  config :lssf_hts, LssfHts.Mailer,
+    adapter: Swoosh.Adapters.Local
+
+  config :swoosh, :api_client, false
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

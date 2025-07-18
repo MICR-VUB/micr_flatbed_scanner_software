@@ -7,10 +7,15 @@ services:
     ports:
       - "4000:4000"
     environment:
-      DATABASE_URL: ecto://postgres:postgres@db/lssf_hts
+      DATABASE_URL: ecto://postgres:postgres@db/lssf_hts_prod
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     depends_on:
       - db
+    command: >
+      bash -c "
+        ./bin/lssf_hts eval 'LssfHts.Release.migrate()' &&
+        ./bin/server
+      "
 
   db:
     image: postgres:15
