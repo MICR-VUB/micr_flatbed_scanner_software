@@ -16,3 +16,10 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Docs: https://hexdocs.pm/phoenix
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
+
+
+## Config
+Need to specify and source the following env variables for dev:
+```bash
+  SCAN_API_URL=http://localhost:4001
+```
