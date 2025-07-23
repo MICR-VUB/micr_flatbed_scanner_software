@@ -51,7 +51,7 @@ defmodule LssfHts.Scheduler.ScanWorker do
     {:error, "Job #{job.id} disabled due to failure or expiration"}
   end
 
-  defp execute_http_request(event) do
+  def execute_http_request(event) do
     payload = %{
       device: event.device.udev_name,
       output: event.output,
@@ -67,7 +67,7 @@ defmodule LssfHts.Scheduler.ScanWorker do
       {"Content-Type", "application/json"}
     ]
 
-    server_address = "localhost:4001/scan"
+    server_address = System.get_env("SCAN_API_URL")
 
     case Jason.encode(payload) do
       {:ok, json} ->

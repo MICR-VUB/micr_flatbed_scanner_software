@@ -16,6 +16,8 @@ services:
         ./bin/lssf_hts eval 'LssfHts.Release.migrate()' &&
         ./bin/server
       "
+    env_file:
+    - .env.prod
 
   db:
     image: postgres:15
@@ -27,5 +29,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  scan_server:
+    image: scan_service
+    ports:
+      - "4001:4001"
+    volumes:
+      - /dev:/dev
+      - /run/udev:/run/udev
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
+    restart: unless-stopped
 volumes:
   postgres_data:
